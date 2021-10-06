@@ -1,5 +1,5 @@
 from flask import Flask, request
-import pymysql.cursors
+import sqlite3
 import configparser
 
 app = Flask(__name__)
@@ -9,31 +9,24 @@ config.read('db.conf')
 configDict = dict(config.items('DB_DETAILS'))
 print(configDict)
 
-app.config['MYSQL_USER'] = configDict['mysql_user']
-app.config['MYSQL_PASSWORD'] = configDict['mysql_password']
-app.config['MYSQL_HOST'] = configDict['mysql_host']
-app.config['MYSQL_DB'] = configDict['mysql_db']
+app.config['CONNECTION'] = configDict['path']
 
 @app.route("/")
 def index():
-  return "Application Works"
+  return app.config['CONNECTION']
 
-@app.route("/getEmployeeIds")
+@app.route("/getIds")
 def getEmployeeIds():
   empName = request.args.get('name')
-  connection = pymysql.connect( host=app.config['MYSQL_HOST'],
-                              user=app.config['MYSQL_USER'],
-                              password=app.config['MYSQL_PASSWORD'],
-                              database=app.config['MYSQL_DB'],
-                              charset='utf8mb4',
-                              cursorclass=pymysql.cursors.DictCursor )
-  with connection:
-    with connection.cursor() as cursor:
-      sql = "SELECT emp_no from employees where first_name=%s"
-      print(sql)
-      cursor.execute(sql, (empName,))
-      result = cursor.fetchone()
-  return result
+  print(empName)
+  connection = sqlite3.connect(app.config['CONNECTION'])
+  cursor = connection.cursor()
+  sql = "SELECT id, sharktype from sharks where name='{}'".format(empName)
+  print(sql)
+  cursor.execute(sql)
+  result = cursor.fetchall()
+  print(result)
+  return str(result)
 
 if __name__ == '__main__':
   app.run(debug = True)
