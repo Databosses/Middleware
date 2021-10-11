@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import sqlite3
 import configparser
 
@@ -13,10 +13,14 @@ app.config['CONNECTION'] = configDict['path']
 
 @app.route("/")
 def index():
-  return app.config['CONNECTION']
+  return jsonify({'message': 'Application Started'})
+
+@app.route("/getDBPath")
+def getDBPath():
+  return jsonify({'dbPath': app.config['CONNECTION']})
 
 @app.route("/getIds")
-def getEmployeeIds():
+def getIds():
   empName = request.args.get('name')
   print(empName)
   connection = sqlite3.connect(app.config['CONNECTION'])
