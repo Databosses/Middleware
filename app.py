@@ -239,7 +239,7 @@ def deleteLot():
 def getLotVisualization():
   connection = sqlite3.connect(app.config['CONNECTION'])
   cursor = connection.cursor()
-  sql = "select PART_DEFECT.SEVERITY, count(*) from lot inner join PART on lot.id = PART.lot inner join PART_DEFECT on PART.id = PART_DEFECT.part_id where lot.id = {} group by (PART_DEFECT.SEVERITY);".format(request.args.get('id'))
+  sql = "select PART_DEFECT.SEVERITY, sum(part_defect.defect_count) from lot inner join PART on lot.id = PART.lot inner join PART_DEFECT on PART.id = PART_DEFECT.part_id where lot.id = {} group by (PART_DEFECT.SEVERITY);".format(request.args.get('id'))
   print(sql)
   cursor.execute('PRAGMA foreign_keys = ON;')
   cursor.execute(sql)
